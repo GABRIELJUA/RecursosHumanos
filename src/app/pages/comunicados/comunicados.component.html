@@ -1,0 +1,153 @@
+<!-- TOAST -->
+<div *ngIf="toast.show" class="fixed bottom-5 right-5 z-50">
+  <div class="px-4 py-3 rounded-lg text-white text-sm shadow-lg" [ngClass]="{
+    'bg-emerald-500':toast.type==='success',
+    'bg-red-500':toast.type==='error',
+    'bg-slate-800':toast.type==='info'
+  }">
+    {{toast.message}}
+  </div>
+</div>
+
+
+<div class="space-y-6">
+
+  <!-- HEADER -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h2 class="text-xl font-semibold text-slate-800 dark:text-white">
+        Comunicados internos
+      </h2>
+      <p class="text-xs text-slate-400">
+        Avisos oficiales de la empresa
+      </p>
+    </div>
+
+    <button (click)="abrirNuevo()"
+      class="px-4 py-2 text-xs font-semibold bg-orange-500 text-white rounded-md hover:bg-orange-600">
+      + Nuevo comunicado
+    </button>
+  </div>
+
+  <!-- LOADING -->
+  <div *ngIf="loading" class="text-center py-20 text-slate-400 text-sm">
+    Cargando comunicados...
+  </div>
+
+  <!-- LISTA -->
+  <div *ngIf="!loading && comunicados.length" class="grid sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+
+    <div *ngFor="let c of comunicados"
+      class="bg-white dark:bg-[#020617] border border-slate-200 dark:border-slate-800 rounded-xl p-5 hover:shadow-lg transition">
+
+      <div class="font-semibold text-slate-800 dark:text-white">
+        {{c.titulo}}
+      </div>
+
+      <div class="text-xs text-slate-400 mt-1">
+        {{c.fecha_publicacion | date:'yyyy-MM-dd'}}
+      </div>
+
+      <!-- ===== ARCHIVO / IMAGEN ===== -->
+      <div *ngIf="c.archivo_url" class="mt-4">
+
+        <!-- IMAGEN -->
+        <img *ngIf="getTipoArchivo(c.archivo_url)==='image'" [src]="getFileUrl(c.archivo_url)" class="w-full h-28 object-cover rounded-lg border
+              border-slate-200 dark:border-slate-700">
+
+        <!-- PDF PRO -->
+        <div *ngIf="getTipoArchivo(c.archivo_url)==='pdf'" class="mt-3 rounded-xl overflow-hidden border
+            border-slate-200 dark:border-slate-700 bg-white">
+
+          <iframe [src]="getSafePdfUrl(c.archivo_url)" class="w-full h-40">
+          </iframe>
+
+        </div>
+
+
+
+
+        <!-- WORD / EXCEL / OTROS (ICONO PNG PRO) -->
+        <div *ngIf="getTipoArchivo(c.archivo_url)==='file'" class="mt-3 bg-slate-50 dark:bg-slate-800 rounded-xl p-4
+            flex items-center gap-3 border border-slate-200 dark:border-slate-700">
+
+          <!-- ICONO PNG -->
+          <img [src]="getIconoArchivo(c.archivo_url)" class="w-12 h-12 object-contain">
+
+          <!-- INFO -->
+          <div class="flex-1">
+
+            <div class="text-xs font-semibold text-slate-700 dark:text-slate-200">
+              Documento adjunto
+            </div>
+
+            <div class="text-[11px] text-slate-400 truncate">
+              {{c.archivo_url?.split('/').pop()}}
+            </div>
+
+            <a [href]="getFileUrl(c.archivo_url)" target="_blank" class="inline-block mt-1 text-xs font-semibold
+              text-blue-600 hover:text-blue-800 dark:text-orange-400">
+              Abrir documento
+            </a>
+
+          </div>
+
+        </div>
+
+
+      </div>
+
+
+      <div class="flex justify-between mt-4 pt-3 border-t border-slate-100 dark:border-slate-800">
+
+        <button (click)="editar(c)" class="text-xs font-semibold text-blue-600 hover:text-blue-800">
+          Editar
+        </button>
+
+        <button (click)="eliminar(c.id_comunicado)" class="text-xs font-semibold text-red-500 hover:text-red-700">
+          Eliminar
+        </button>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- MODAL -->
+<div *ngIf="mostrarModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+
+  <div class="bg-white dark:bg-[#020617] w-full max-w-lg rounded-xl shadow-xl">
+
+    <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex justify-between">
+      <h3 class="text-sm font-semibold text-slate-800 dark:text-white">
+        {{editando?'Editar comunicado':'Nuevo comunicado'}}
+      </h3>
+      <button (click)="mostrarModal=false">✕</button>
+    </div>
+
+    <div class="p-6 space-y-4">
+
+      <input [(ngModel)]="form.titulo" placeholder="Título"
+        class="w-full px-3 py-2 border rounded-md text-sm bg-transparent">
+
+      <input type="date" [(ngModel)]="form.fecha_publicacion"
+        class="w-full px-3 py-2 border rounded-md text-sm bg-transparent">
+
+      <textarea [(ngModel)]="form.contenido" rows="5" placeholder="Contenido..."
+        class="w-full px-3 py-2 border rounded-md text-sm bg-transparent"></textarea>
+
+      <input type="file" (change)="onFile($event)">
+
+      <div class="flex justify-end gap-3 pt-3">
+        <button (click)="mostrarModal=false" class="px-4 py-2 text-xs text-slate-500">Cancelar</button>
+
+        <button (click)="guardar()" class="px-4 py-2 text-xs bg-orange-500 text-white rounded-md hover:bg-orange-600">
+          Publicar
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>

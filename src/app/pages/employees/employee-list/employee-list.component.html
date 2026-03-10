@@ -1,0 +1,411 @@
+<div class="space-y-6">
+
+  <!-- ================= HEADER ================= -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h2 class="text-xl font-semibold text-slate-800 dark:text-white">
+        Gestión de Personal
+      </h2>
+      <p class="text-xs text-slate-400 mt-1">
+        Administración de empleados registrados en el sistema
+      </p>
+    </div>
+
+    <div class="flex items-center gap-2">
+
+      <!-- Exportar -->
+      <button (click)="exportarExcel()" class="inline-flex items-center gap-2 px-3 py-2 text-xs font-semibold
+               border border-slate-200 dark:border-slate-700
+               text-slate-600 dark:text-slate-300
+               bg-white dark:bg-slate-900
+               rounded-md
+               hover:bg-slate-100 dark:hover:bg-slate-800
+               transition">
+
+        <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3M4 4h16v4H4z" />
+        </svg>
+
+        Exportar
+      </button>
+
+      <!-- Crear -->
+      <a *ngIf="canCreate" routerLink="/admin/employees/create" class="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold
+                bg-orange-500 text-white rounded-md
+                hover:bg-orange-600 transition">
+        + Nuevo empleado
+      </a>
+
+    </div>
+  </div>
+
+
+  <!-- ================= FILTROS ================= -->
+  <div class="bg-white dark:bg-[#020617]
+              border border-slate-200 dark:border-slate-800
+              rounded-xl p-4">
+
+    <div class="flex flex-col md:flex-row gap-4">
+
+      <!-- Buscador -->
+      <div class="relative flex-1">
+        <input type="text" [ngModel]="searchTerm" (ngModelChange)="onSearchChange($event)"
+          placeholder="Buscar por nombre, apellidos o nómina..." class="w-full px-4 py-2 text-sm
+                      bg-slate-50 dark:bg-slate-900
+                      border border-slate-200 dark:border-slate-700
+                      rounded-lg
+                      focus:outline-none focus:ring-2 focus:ring-orange-500/20
+                      text-slate-700 dark:text-slate-200
+                      placeholder-slate-400 transition" />
+      </div>
+
+      <button *ngIf="filtrosActivos" (click)="searchTerm=''; departamentoSeleccionado=''; loadEmployees()" class="inline-flex items-center gap-2 px-3 py-2 text-xs font-semibold
+         border border-slate-200 dark:border-slate-700
+         text-slate-500 dark:text-slate-400
+         bg-white dark:bg-slate-900
+         rounded-md
+         hover:bg-slate-100 dark:hover:bg-slate-800
+         hover:text-orange-500
+         transition">
+        Limpiar filtros
+      </button>
+
+      <div class="relative w-full md:w-72">
+
+        <!-- Botón -->
+        <button (click)="toggleDepto()" class="w-full flex justify-between items-center
+           px-3 py-2 text-sm
+           bg-slate-50 dark:bg-slate-900
+           border border-slate-200 dark:border-slate-700
+           rounded-lg">
+
+          <span>
+            {{ departamentoSeleccionado || 'Todos los departamentos' }}
+          </span>
+
+          <svg class="w-4 h-4 opacity-60" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+
+        <!-- Dropdown -->
+        <div *ngIf="mostrarDepto" class="absolute z-50 mt-2 w-full
+              bg-white dark:bg-slate-900
+              border border-slate-200 dark:border-slate-700
+              rounded-lg shadow-lg p-3 space-y-2">
+
+          <!-- Buscador -->
+          <input type="text" [(ngModel)]="busquedaDepto" placeholder="Buscar..." class="w-full px-2 py-1 text-xs
+             border rounded-md
+             bg-slate-50 dark:bg-slate-800
+             border-slate-200 dark:border-slate-600" />
+
+          <!-- Lista -->
+          <div class="max-h-52 overflow-y-auto space-y-1">
+
+            <div (click)="seleccionarDepto('')" class="px-2 py-1 text-xs cursor-pointer
+               hover:bg-slate-100 dark:hover:bg-slate-800 rounded">
+              Todos
+            </div>
+
+            <div *ngFor="let d of departamentosFiltrados()" (click)="seleccionarDepto(d.nombre)" class="flex justify-between items-center
+               px-2 py-1 text-xs cursor-pointer
+               hover:bg-slate-100 dark:hover:bg-slate-800 rounded">
+
+              <span>{{ d.nombre }}</span>
+              <span class="text-slate-400">{{ d.total }}</span>
+
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ================= TABLA ================= -->
+  <div class="bg-white dark:bg-[#020617]
+              border border-slate-200 dark:border-slate-800
+              rounded-xl overflow-hidden">
+
+    <!-- Cargando -->
+    <div *ngIf="loading" class="p-6 space-y-3">
+      <div *ngFor="let i of [1,2,3,4,5]" class="h-12 bg-slate-200 dark:bg-slate-800
+              animate-pulse rounded-md">
+      </div>
+    </div>
+
+    <!-- Error -->
+    <div *ngIf="errorMessage" class="p-6 text-red-600 text-sm font-semibold text-center">
+      {{ errorMessage }}
+    </div>
+
+    <!-- Tabla -->
+    <div *ngIf="!loading && employees.length" class="overflow-x-auto">
+
+      <table class="min-w-full text-sm">
+
+        <thead class="bg-slate-50 dark:bg-slate-900
+                      border-b border-slate-200 dark:border-slate-800">
+          <tr class="text-xs text-slate-500 dark:text-slate-400
+                     uppercase tracking-wider">
+
+            <th (click)="ordenar('num_nomina')" class="px-6 py-3 text-left cursor-pointer select-none">
+
+              <div class="flex items-center gap-2">
+
+                <span class="text-slate-500 dark:text-slate-400">
+                  Nómina
+                </span>
+
+                <div class="w-5 h-5 flex items-center justify-center">
+
+                  <svg class="w-3.5 h-3.5 transition-all duration-200" [ngClass]="{
+          'text-orange-500': sortField === 'num_nomina',
+          'text-slate-400 opacity-40': sortField !== 'num_nomina',
+          'rotate-180': sortField === 'num_nomina' && sortOrder === 'desc'
+        }" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7" />
+
+                  </svg>
+
+                </div>
+
+              </div>
+            </th>
+            <th (click)="ordenar('nombre')" class="px-6 py-3 text-left cursor-pointer select-none">
+
+              <div class="flex items-center gap-2">
+
+                <!-- Texto fijo, sin cambios de color -->
+                <span class="text-slate-500 dark:text-slate-400">
+                  Empleado
+                </span>
+
+                <!-- Icono -->
+                <div class="w-5 h-5 flex items-center justify-center">
+
+                  <svg class="w-3.5 h-3.5 transition-all duration-200" [ngClass]="{
+          'text-orange-500': sortField === 'nombre',
+          'text-slate-400 opacity-40': sortField !== 'nombre',
+          'rotate-180': sortField === 'nombre' && sortOrder === 'desc'
+        }" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7" />
+
+                  </svg>
+
+                </div>
+
+              </div>
+            </th>
+            <th (click)="ordenar('puesto')" class="px-6 py-3 text-left cursor-pointer select-none">
+
+              <div class="flex items-center gap-2">
+
+                <span class="text-slate-500 dark:text-slate-400">
+                  Puesto
+                </span>
+
+                <div class="w-5 h-5 flex items-center justify-center">
+
+                  <svg class="w-3.5 h-3.5 transition-all duration-200" [ngClass]="{
+          'text-orange-500': sortField === 'puesto',
+          'text-slate-400 opacity-40': sortField !== 'puesto',
+          'rotate-180': sortField === 'puesto' && sortOrder === 'desc'
+        }" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7" />
+
+                  </svg>
+
+                </div>
+
+              </div>
+            </th>
+            <th (click)="ordenar('departamento')" class="px-6 py-3 text-left cursor-pointer select-none">
+
+              <div class="flex items-center gap-2">
+
+                <span class="text-slate-500 dark:text-slate-400">
+                  Departamento
+                </span>
+
+                <div class="w-5 h-5 flex items-center justify-center">
+
+                  <svg class="w-3.5 h-3.5 transition-all duration-200" [ngClass]="{
+          'text-orange-500': sortField === 'departamento',
+          'text-slate-400 opacity-40': sortField !== 'departamento',
+          'rotate-180': sortField === 'departamento' && sortOrder === 'desc'
+        }" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7" />
+
+                  </svg>
+
+                </div>
+
+              </div>
+            </th>
+            <th class="px-6 py-3 text-left">Rol</th>
+            <th class="px-6 py-3 text-center">Acciones</th>
+
+          </tr>
+        </thead>
+
+        <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+
+          <tr *ngFor="let e of employees" class="hover:bg-slate-50 dark:hover:bg-slate-900 transition">
+
+            <td class="px-6 py-4 font-mono text-xs text-slate-500 dark:text-slate-400">
+              {{ e.num_nomina }}
+            </td>
+
+            <td class="px-6 py-4">
+              <div class="flex items-center gap-3">
+
+                <div class="w-9 h-9 rounded-full
+                bg-orange-500/10 text-orange-600
+                flex items-center justify-center
+                text-xs font-semibold">
+                  {{ e.nombre.charAt(0) }}{{ e.apellido_paterno.charAt(0) }}
+                </div>
+
+                <div>
+                  <div class="font-medium text-slate-800 dark:text-white">
+                    {{ e.nombre }} {{ e.apellido_paterno }} {{ e.apellido_materno }}
+                  </div>
+                  <div class="text-xs text-slate-400">
+                    {{ e.correo }}
+                  </div>
+                </div>
+
+              </div>
+            </td>
+
+            <td class="px-6 py-4 text-slate-700 dark:text-slate-300">
+              {{ e.puesto }}
+            </td>
+
+            <td class="px-6 py-4 text-slate-700 dark:text-slate-300">
+              {{ e.departamento }}
+            </td>
+
+            <td class="px-6 py-4">
+              <span class="px-2 py-1 text-[10px] tracking-wide font-semibold rounded-full" [ngClass]="{
+                  'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300': e.rol === 'EMPLEADO',
+                  'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300': e.rol === 'ADMIN',
+                  'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300': e.rol === 'ADMIN_EDITOR',
+                  'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300': e.rol === 'ADMIN_LECTURA'
+                }">
+                {{ e.rol }}
+              </span>
+            </td>
+
+            <td class="px-6 py-4 text-center">
+              <a [routerLink]="['/admin/employees', e.id_empleado]" class="inline-flex items-center gap-1
+                      text-xs font-semibold
+                      text-slate-600 dark:text-slate-300
+                      hover:text-orange-500
+                      transition">
+
+                Ver
+
+                <svg class="w-3 h-3 opacity-60" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+
+              </a>
+            </td>
+
+          </tr>
+
+        </tbody>
+
+      </table>
+    </div>
+
+
+    <!-- ================= FOOTER ================= -->
+    <div *ngIf="!loading && employees.length" class="flex flex-col md:flex-row md:items-center md:justify-between
+                gap-4 px-6 py-4 border-t
+                border-slate-200 dark:border-slate-800
+                bg-slate-50 dark:bg-slate-900/40">
+
+      <!-- Info izquierda -->
+      <div class="flex items-center gap-6 flex-wrap">
+
+        <!-- Registros por página -->
+        <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+          <span>Mostrar</span>
+
+          <select [(ngModel)]="limit" (change)="onLimitChange()" class="px-2 py-1 text-xs
+                         bg-white dark:bg-slate-800
+                         border border-slate-300 dark:border-slate-700
+                         rounded-md focus:outline-none focus:ring-1 focus:ring-orange-500">
+
+            <option *ngFor="let size of pageSizeOptions" [value]="size">
+              {{ size }}
+            </option>
+
+          </select>
+
+          <span>registros</span>
+        </div>
+
+        <!-- Texto informativo -->
+        <span class="text-xs text-slate-500 dark:text-slate-400">
+          Mostrando
+          <strong>{{ (currentPage - 1) * limit + 1 }}</strong>
+          -
+          <strong>{{ (currentPage - 1) * limit + employees.length }}</strong>
+          de
+          <strong>{{ totalRecords }}</strong>
+          registros
+        </span>
+
+      </div>
+
+      <!-- Paginación -->
+      <div *ngIf="totalPages > 1" class="flex items-center gap-2">
+
+        <button (click)="previousPage()" [disabled]="currentPage === 1" class="px-3 py-1 text-xs font-semibold
+                       bg-white dark:bg-slate-800
+                       border border-slate-300 dark:border-slate-700
+                       text-slate-600 dark:text-slate-300
+                       rounded-md
+                       disabled:opacity-40 disabled:cursor-not-allowed
+                       hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+          Anterior
+        </button>
+
+        <span class="text-xs text-slate-600 dark:text-slate-300 font-medium">
+          {{ currentPage }} / {{ totalPages }}
+        </span>
+
+        <button (click)="nextPage()" [disabled]="currentPage === totalPages" class="px-3 py-1 text-xs font-semibold
+                       bg-white dark:bg-slate-800
+                       border border-slate-300 dark:border-slate-700
+                       text-slate-600 dark:text-slate-300
+                       rounded-md
+                       disabled:opacity-40 disabled:cursor-not-allowed
+                       hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+          Siguiente
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- ================= SIN REGISTROS ================= -->
+  <div *ngIf="!loading && !employees.length" class="p-10 text-center text-slate-400 text-sm">
+    No hay empleados registrados.
+  </div>
+
+</div>

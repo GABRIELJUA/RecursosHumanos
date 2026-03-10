@@ -1,0 +1,296 @@
+<div class="max-w-6xl mx-auto space-y-6">
+
+  <!-- ================= HEADER PERFIL ================= -->
+  <div *ngIf="!loading && employee"
+       class="bg-white dark:bg-[#020617]
+              border border-slate-200 dark:border-slate-800
+              rounded-xl p-6">
+
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+
+      <!-- Info principal -->
+      <div class="flex items-center gap-5">
+
+        <div class="w-16 h-16 rounded-full
+                    bg-orange-500/10 text-orange-600
+                    flex items-center justify-center
+                    text-xl font-semibold">
+          {{ employee.nombre.charAt(0) }}{{ employee.apellido_paterno.charAt(0) }}
+        </div>
+
+        <div>
+          <h2 class="text-lg font-semibold text-slate-800 dark:text-white">
+            {{ employee.nombre }} {{ employee.apellido_paterno }} {{ employee.apellido_materno }}
+          </h2>
+
+          <div class="text-sm text-slate-500 dark:text-slate-400 mt-1">
+            {{ employee.puesto }} · {{ employee.departamento }}
+          </div>
+
+          <span class="inline-block mt-2 px-2 py-1 text-[10px] font-semibold rounded-full"
+                [ngClass]="{
+                  'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400': employee.rol === 'ADMIN',
+                  'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300': employee.rol === 'ADMIN_EDITOR',
+                  'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300': employee.rol === 'ADMIN_LECTURA',
+                  'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300': employee.rol === 'EMPLEADO'
+                }">
+            {{ employee.rol }}
+          </span>
+        </div>
+
+      </div>
+
+      <!-- Acciones -->
+      <div class="flex gap-2 flex-wrap">
+
+        <!-- Primario -->
+        <button [routerLink]="['/admin/employees/edit', employee.id_empleado]"
+          class="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold
+                 bg-orange-500 text-white rounded-md
+                 hover:bg-orange-600 transition">
+          Editar
+        </button>
+
+        <!-- Secundario estilo Gestión -->
+        <button (click)="openResetPassword()"
+          class="inline-flex items-center gap-2 px-3 py-2 text-xs font-semibold
+                 border border-slate-200 dark:border-slate-700
+                 text-slate-600 dark:text-slate-300
+                 bg-white dark:bg-slate-900
+                 rounded-md
+                 hover:bg-slate-100 dark:hover:bg-slate-800
+                 transition">
+          Resetear contraseña
+        </button>
+
+        <!-- Ghost -->
+        <button routerLink="/admin/employees"
+          class="inline-flex items-center gap-2 px-3 py-2 text-xs font-semibold
+                 border border-slate-200 dark:border-slate-700
+                 text-slate-500 dark:text-slate-400
+                 bg-white dark:bg-slate-900
+                 rounded-md
+                 hover:bg-slate-100 dark:hover:bg-slate-800
+                 transition">
+          Volver
+        </button>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= CONTENIDO ================= -->
+  <div *ngIf="!loading && employee"
+       class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+    <!-- ===== Información laboral ===== -->
+    <div class="bg-white dark:bg-[#020617]
+                border border-slate-200 dark:border-slate-800
+                rounded-xl p-6 space-y-4">
+
+      <h3 class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+        <svg class="w-5 h-5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M9 6V5a3 3 0 016 0v1m-9 0h12a2 2 0 012 2v10a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2z"/>
+        </svg>
+        Información laboral
+      </h3>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+        <div>
+          <span class="text-slate-400">Nómina</span>
+          <div class="font-medium text-slate-800 dark:text-white">
+            {{ employee.num_nomina }}
+          </div>
+        </div>
+        <div>
+          <span class="text-slate-400">Fecha ingreso</span>
+          <div class="font-medium text-slate-800 dark:text-white">
+            {{ employee.fecha_ingreso | date:'yyyy-MM-dd' }}
+          </div>
+        </div>
+        <div>
+          <span class="text-slate-400">Departamento</span>
+          <div class="font-medium text-slate-800 dark:text-white">
+            {{ employee.departamento }}
+          </div>
+        </div>
+        <div>
+          <span class="text-slate-400">Puesto</span>
+          <div class="font-medium text-slate-800 dark:text-white">
+            {{ employee.puesto }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Datos personales ===== -->
+    <div class="bg-white dark:bg-[#020617]
+                border border-slate-200 dark:border-slate-800
+                rounded-xl p-6 space-y-4">
+
+      <h3 class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+        <svg class="w-5 h-5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M12 12a5 5 0 100-10 5 5 0 000 10zm0 2c-4 0-8 2-8 5v1h16v-1c0-3-4-5-8-5z"/>
+        </svg>
+        Datos personales
+      </h3>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+        <div>
+          <span class="text-slate-400">Fecha nacimiento</span>
+          <div class="font-medium text-slate-800 dark:text-white">
+            {{ employee.fecha_nacimiento | date:'yyyy-MM-dd' }}
+          </div>
+        </div>
+        <div>
+          <span class="text-slate-400">Edad</span>
+          <div class="font-medium text-slate-800 dark:text-white">
+            {{ employee.edad }} años
+          </div>
+        </div>
+        <div>
+          <span class="text-slate-400">Sexo</span>
+          <div class="font-medium text-slate-800 dark:text-white">
+            {{ employee.sexo }}
+          </div>
+        </div>
+        <div>
+          <span class="text-slate-400">Estado civil</span>
+          <div class="font-medium text-slate-800 dark:text-white">
+            {{ employee.estado_civil }}
+          </div>
+        </div>
+        <div class="sm:col-span-2">
+          <span class="text-slate-400">Nacionalidad</span>
+          <div class="font-medium text-slate-800 dark:text-white">
+            {{ employee.nacionalidad }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Contacto ===== -->
+    <div class="bg-white dark:bg-[#020617]
+                border border-slate-200 dark:border-slate-800
+                rounded-xl p-6 space-y-4">
+
+      <h3 class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+        <svg class="w-5 h-5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M3 8l9 6 9-6M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+        </svg>
+        Información de contacto
+      </h3>
+
+      <div class="space-y-3 text-sm">
+        <div>
+          <span class="text-slate-400">Correo</span>
+          <div class="font-medium text-slate-800 dark:text-white">
+            {{ employee.correo }}
+          </div>
+        </div>
+        <div>
+          <span class="text-slate-400">Teléfono</span>
+          <div class="font-medium text-slate-800 dark:text-white">
+            {{ employee.telefono }}
+          </div>
+        </div>
+        <div>
+          <span class="text-slate-400">Domicilio</span>
+          <div class="font-medium text-slate-800 dark:text-white">
+            {{ employee.domicilio }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Documentos ===== -->
+    <div class="bg-white dark:bg-[#020617]
+                border border-slate-200 dark:border-slate-800
+                rounded-xl p-6 space-y-4">
+
+      <h3 class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+        <svg class="w-5 h-5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M9 12h6m-6 4h6m2-12H7a2 2 0 00-2 2v16l4-4h10a2 2 0 002-2V6a2 2 0 00-2-2z"/>
+        </svg>
+        Documentos oficiales
+      </h3>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+        <div>
+          <span class="text-slate-400">RFC</span>
+          <div class="font-medium text-slate-800 dark:text-white">
+            {{ employee.rfc }}
+          </div>
+        </div>
+        <div>
+          <span class="text-slate-400">CURP</span>
+          <div class="font-medium text-slate-800 dark:text-white">
+            {{ employee.curp }}
+          </div>
+        </div>
+        <div>
+          <span class="text-slate-400">NSS</span>
+          <div class="font-medium text-slate-800 dark:text-white">
+            {{ employee.nss }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div *ngIf="loading" class="p-10 text-center text-slate-400 text-sm">
+    Cargando expediente...
+  </div>
+
+</div>
+
+<div *ngIf="isResettingPassword && employee"
+  class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+  <div class="w-full max-w-lg rounded-2xl bg-white dark:bg-[#0f172a] border border-slate-200 dark:border-slate-800 p-6">
+    <h3 class="text-base font-semibold text-slate-800 dark:text-white">
+      Resetear contraseña
+    </h3>
+
+    <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">
+      Empleado:
+      <span class="font-semibold text-slate-700 dark:text-slate-200">
+        {{ employee.nombre }} {{ employee.apellido_paterno }}
+      </span>
+      ({{ employee.num_nomina }})
+    </p>
+
+    <div class="mt-5 space-y-4">
+      <div>
+        <label class="block text-xs font-semibold text-slate-500 mb-1">Nueva contraseña</label>
+        <input type="password" [(ngModel)]="resetPasswordData.newPassword"
+          class="w-full bg-white border border-slate-200 rounded-md px-3 py-2 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-300 focus:border-slate-300 transition dark:bg-slate-900 dark:border-slate-700 dark:text-white"
+          placeholder="Mínimo 4 caracteres">
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-500 mb-1">Confirmar contraseña</label>
+        <input type="password" [(ngModel)]="resetPasswordData.confirmPassword"
+          class="w-full bg-white border border-slate-200 rounded-md px-3 py-2 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-300 focus:border-slate-300 transition dark:bg-slate-900 dark:border-slate-700 dark:text-white"
+          placeholder="Repite la nueva contraseña">
+      </div>
+    </div>
+
+    <div class="mt-6 flex justify-end gap-3">
+      <button type="button" (click)="cancelResetPassword()"
+        class="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-white">
+        Cancelar
+      </button>
+
+      <button type="button" (click)="saveResetPassword()"
+        class="px-6 py-2 text-xs font-semibold text-white bg-amber-500 hover:bg-amber-600 rounded-md">
+        Guardar nueva contraseña
+      </button>
+    </div>
+  </div>
+</div>

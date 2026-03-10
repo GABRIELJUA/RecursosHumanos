@@ -1,0 +1,70 @@
+<div class="min-h-screen bg-slate-50 font-['Plus_Jakarta_Sans'] pb-32 pt-12">
+
+  <div class="max-w-3xl mx-auto px-6">
+
+    <!-- HEADER -->
+    <header class="mb-12 text-center">
+      <h1 class="text-3xl font-bold text-slate-800">
+        Galería
+      </h1>
+      <p class="text-sm text-slate-500 mt-3 max-w-lg mx-auto">
+        Archivo visual del equipo y nuestra cultura organizacional.
+      </p>
+    </header>
+
+  </div>
+
+  <!-- CONTENIDO -->
+  <main class="px-4 md:px-12">
+
+    <section *ngFor="let album of albums; trackBy: trackByAlbumId"
+             class="mb-32"
+             [attr.aria-label]="'Álbum ' + album.nombre">
+
+      <!-- ENCABEZADO DEL ÁLBUM -->
+      <header class="mb-12 max-w-3xl mx-auto px-2">
+
+        <h2 class="text-xl font-bold text-slate-800">
+          {{ album.nombre }}
+          <span *ngIf="album.anio"
+                class="text-slate-400 font-semibold">
+            ({{ album.anio }})
+          </span>
+        </h2>
+
+        <p class="text-sm text-slate-500 mt-2">
+          {{ album.fotos.length }} fotografías
+        </p>
+
+      </header>
+
+      <!-- GRID MASONRY -->
+      <div class="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-8">
+
+        <ng-container *ngFor="let photo of album.fotos; trackBy: trackByPhoto">
+
+          <figure class="mb-8 break-inside-avoid">
+
+            <img
+              [src]="'http://localhost:3000' + photo.archivo_url"
+              [alt]="'Fotografía del álbum ' + album.nombre + (album.anio ? ' del año ' + album.anio : '')"
+              loading="lazy"
+              decoding="async"
+              width="1200"
+              height="800"
+              class="w-full h-auto
+                     transition duration-300
+                     hover:scale-[1.015]
+                     hover:opacity-95">
+
+          </figure>
+
+        </ng-container>
+
+      </div>
+
+    </section>
+
+  </main>
+
+</div>

@@ -1,0 +1,198 @@
+<div class="w-full bg-white">
+
+  <section class="w-full bg-white" aria-label="Promociones y navegación principal">
+
+    <!-- CAROUSEL -->
+    <div class="relative w-full h-[400px] md:h-[550px] overflow-hidden bg-slate-200" role="region"
+      aria-roledescription="carousel" aria-label="Galería principal">
+
+      <ng-container *ngFor="let image of images; let i = index; trackBy: trackByImage">
+
+        <a [routerLink]="image.route" class="absolute inset-0 w-full h-full transition-opacity duration-1000"
+          [class.opacity-100]="i === currentImageIndex" [class.z-10]="i === currentImageIndex"
+          [class.pointer-events-auto]="i === currentImageIndex" [class.opacity-0]="i !== currentImageIndex"
+          [class.z-0]="i !== currentImageIndex" [class.pointer-events-none]="i !== currentImageIndex"
+          [attr.aria-hidden]="i !== currentImageIndex">
+
+          <img [src]="image.url" [alt]="'Banner ' + (i + 1)" class="w-full h-full object-cover"
+            [attr.loading]="i === 0 ? 'eager' : 'lazy'" decoding="async" width="1920" height="1080">
+
+        </a>
+
+      </ng-container>
+
+      <!-- CONTROLES -->
+      <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-3 z-20" role="tablist"
+        aria-label="Selector de imágenes">
+
+        <button *ngFor="let image of images; let i = index; trackBy: trackByImage" (click)="setSlide(i)" type="button"
+          role="tab" [attr.aria-selected]="i === currentImageIndex" [attr.aria-label]="'Ir a imagen ' + (i + 1)"
+          class="transition-all duration-300 rounded-full h-3 focus:outline-none focus:ring-2 focus:ring-white"
+          [ngClass]="{
+                'w-8 bg-white': i === currentImageIndex,
+                'w-3 bg-white/40': i !== currentImageIndex
+              }">
+        </button>
+
+      </div>
+
+      <!-- GRADIENT -->
+      <div class="absolute bottom-0 w-full h-20 bg-gradient-to-t from-black/40 to-transparent" aria-hidden="true">
+      </div>
+
+    </div>
+
+  </section>
+
+
+
+  <!-- INFORMACIÓN -->
+  <section class="bg-[#8d765e] py-16 text-white font-['Plus_Jakarta_Sans']" aria-labelledby="informacion-title">
+
+    <div class="max-w-4xl mx-auto px-6">
+
+      <header class="text-center mb-10">
+        <h2 id="informacion-title" class="text-3xl font-bold uppercase tracking-wider">
+          Información
+        </h2>
+      </header>
+
+      <article class="text-lg opacity-90 leading-relaxed space-y-6">
+
+        <p>
+          Lorem ipsum dolor sit amet consectetur adipisicing elit...
+        </p>
+
+        <p>
+          Lorem ipsum dolor sit amet consectetur adipisicing elit...
+        </p>
+
+      </article>
+
+    </div>
+
+  </section>
+
+
+
+
+</div>
+
+
+<main class="px-6 md:px-12 py-20 space-y-28 bg-white">
+
+  <section *ngFor="let s of secciones; let i = index">
+
+    <div class="max-w-6xl mx-auto grid md:grid-cols-3 gap-10 lg:gap-16 items-center">
+
+      <!-- IMAGEN IZQUIERDA -->
+      <div *ngIf="i % 2 === 0"
+        class="group relative rounded-xl overflow-hidden shadow-sm border border-slate-200 bg-slate-100">
+
+        <img [src]="'http://localhost:3000' + s.imagen_url" class="w-full h-[260px] md:h-[300px] object-cover
+                 transition duration-500 ease-out
+                 group-hover:scale-[1.04]">
+
+      </div>
+
+
+      <!-- ARCHIVOS -->
+      <div class="space-y-6">
+
+        <div>
+          <h3 class="text-xl md:text-2xl font-semibold text-slate-800 tracking-tight">
+            {{ s.titulo }}
+          </h3>
+
+          <p class="text-xs text-slate-400 mt-1">
+            {{ s.archivos?.length || 0 }} archivos disponibles
+          </p>
+        </div>
+
+
+        <!-- LISTADO -->
+        <div class="space-y-3">
+
+          <a *ngFor="let a of s.archivos" [href]="'http://localhost:3000' + a.archivo_url" target="_blank" class="flex items-center justify-between
+                   px-4 py-3
+                   bg-white
+                   border border-slate-200
+                   rounded-lg
+                   text-sm text-slate-600
+                   shadow-sm
+                   hover:shadow-md
+                   hover:border-slate-300
+                   hover:bg-slate-50
+                   transition">
+
+            <span class="flex items-center gap-3 truncate">
+
+              <!-- ICONO DOCUMENTO -->
+              <svg class="w-5 h-5 flex-shrink-0 text-slate-400" fill="none" stroke="currentColor" stroke-width="1.8"
+                viewBox="0 0 24 24">
+
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M7 7V5a2 2 0 012-2h6l4 4v12a2 2 0 01-2 2H9a2 2 0 01-2-2V7z" />
+
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 3v4h4" />
+
+              </svg>
+
+              <span class="truncate font-medium">
+                {{ a.nombre }}
+              </span>
+
+            </span>
+
+
+            <span class="flex items-center gap-1 text-xs text-slate-400">
+
+              Descargar
+
+              <!-- ICONO DESCARGA -->
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v12m0 0l4-4m-4 4l-4-4m-5 9h18" />
+
+              </svg>
+
+            </span>
+
+          </a>
+
+        </div>
+
+      </div>
+
+
+      <!-- INFO DERECHA -->
+      <div *ngIf="i % 2 === 0" class="text-sm md:text-base text-slate-500 leading-relaxed">
+
+        {{ s.descripcion }}
+
+      </div>
+
+
+      <!-- INFO IZQUIERDA -->
+      <div *ngIf="i % 2 !== 0" class="text-sm md:text-base text-slate-500 leading-relaxed">
+
+        {{ s.descripcion }}
+
+      </div>
+
+
+      <!-- IMAGEN DERECHA -->
+      <div *ngIf="i % 2 !== 0"
+        class="group relative rounded-xl overflow-hidden shadow-sm border border-slate-200 bg-slate-100">
+
+        <img [src]="'http://localhost:3000' + s.imagen_url" class="w-full h-[260px] md:h-[300px] object-cover
+                 transition duration-500 ease-out
+                 group-hover:scale-[1.04]">
+
+      </div>
+
+    </div>
+
+  </section>
+
+</main>

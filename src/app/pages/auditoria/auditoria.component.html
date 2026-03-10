@@ -1,0 +1,276 @@
+<div class="space-y-6">
+
+    <!-- ================= HEADER ================= -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h2 class="text-xl font-semibold text-slate-800 dark:text-white">
+                Bitácora del Sistema
+            </h2>
+            <p class="text-xs text-slate-400 mt-1">
+                Registro de actividades y eventos de seguridad del sistema
+            </p>
+        </div>
+
+        <button (click)="exportarExcel()" class="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold
+             bg-slate-900 text-white rounded-lg
+             hover:bg-black transition shadow-sm">
+            Exportar
+        </button>
+    </div>
+
+
+    <!-- ================= FILTROS ================= -->
+    <div class="bg-white dark:bg-[#020617]
+              border border-slate-200 dark:border-slate-800
+              rounded-xl p-5 shadow-sm">
+
+        <div class="grid md:grid-cols-4 gap-4">
+
+            <input type="text" [(ngModel)]="filtros.user_id" placeholder="ID del usuario" class="px-4 py-2 text-sm bg-slate-50 dark:bg-slate-900
+               border border-slate-200 dark:border-slate-700
+               rounded-lg focus:ring-2 focus:ring-indigo-500/30
+               text-slate-700 dark:text-slate-200" />
+
+            <select [(ngModel)]="filtros.action" class="px-3 py-2 text-sm bg-slate-50 dark:bg-slate-900
+               border border-slate-200 dark:border-slate-700
+               rounded-lg">
+                <option value="">Todas las acciones</option>
+                <option *ngFor="let a of acciones" [value]="a">
+                    {{ traducirAccion(a) }}
+                </option>
+            </select>
+
+            <select [(ngModel)]="filtros.entity" class="px-3 py-2 text-sm bg-slate-50 dark:bg-slate-900
+               border border-slate-200 dark:border-slate-700
+               rounded-lg">
+                <option value="">Todas las áreas</option>
+                <option *ngFor="let e of entidades" [value]="e">
+                    {{ traducirEntidad(e) }}
+                </option>
+            </select>
+
+            <div class="flex gap-2">
+                <button (click)="buscar()" class="flex-1 px-4 py-2 text-xs font-semibold
+                 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+                    Buscar
+                </button>
+
+                <button (click)="limpiar()" class="flex-1 px-4 py-2 text-xs font-semibold
+                 bg-slate-500 text-white rounded-lg hover:bg-slate-600">
+                    Limpiar
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- ================= TABLA ================= -->
+    <div class="bg-white dark:bg-[#020617]
+              border border-slate-200 dark:border-slate-800
+              rounded-xl overflow-hidden shadow-sm">
+
+        <div *ngIf="loading" class="p-10 text-center text-slate-400 text-sm animate-pulse">
+            Cargando registros...
+        </div>
+
+        <div *ngIf="errorMessage" class="p-6 text-red-600 text-sm font-semibold text-center">
+            {{ errorMessage }}
+        </div>
+
+        <div *ngIf="!loading && logs.length" class="overflow-x-auto">
+
+            <table class="min-w-full text-sm">
+
+                <thead class="bg-slate-50 dark:bg-slate-900
+                      border-b border-slate-200 dark:border-slate-800">
+                    <tr class="text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                        <th class="px-6 py-3 text-left">Fecha</th>
+                        <th class="px-6 py-3 text-left">Usuario</th>
+                        <th class="px-6 py-3 text-left">Acción realizada</th>
+                        <th class="px-6 py-3 text-left">Área</th>
+                        <th class="px-6 py-3 text-left">Registro</th>
+                        <th class="px-6 py-3 text-left">Estado</th>
+                        <th class="px-6 py-3 text-left">Detalle</th>
+                    </tr>
+                </thead>
+
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+
+                    <tr *ngFor="let log of logs" class="hover:bg-slate-50 dark:hover:bg-slate-900 transition">
+
+                        <td class="px-6 py-4 text-xs text-slate-500">
+                            {{ log.created_at | date:'short' }}
+                        </td>
+
+                        <td class="px-6 py-4 font-medium text-slate-700 dark:text-white">
+                            {{ log.usuario_nombre || 'Sistema' }}
+                        </td>
+
+                        <td class="px-6 py-4">
+                            <span class="px-3 py-1 rounded-full text-xs font-semibold"
+                                [ngClass]="getColorClase(log.action)">
+                                {{ traducirAccion(log.action) }}
+                            </span>
+                        </td>
+
+                        <td class="px-6 py-4 text-slate-600 dark:text-slate-300">
+                            {{ traducirEntidad(log.entity) }}
+                        </td>
+
+                        <td class="px-6 py-4 text-slate-500 text-xs">
+                            {{log.entity_id || '-'}}
+                        </td>
+
+                        <td class="px-6 py-4">
+                            <span *ngIf="esSospechoso(log)"
+                                class="px-2 py-1 text-xs font-semibold rounded-full bg-red-200 text-red-800">
+                                Riesgo
+                            </span>
+
+                            <span *ngIf="!esSospechoso(log)"
+                                class="px-2 py-1 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-700">
+                                Normal
+                            </span>
+                        </td>
+
+                        <td class="px-6 py-4">
+                            <button (click)="abrirDetalle(log)"
+                                class="text-xs font-semibold text-indigo-600 hover:text-indigo-800">
+                                Ver detalle
+                            </button>
+                        </td>
+
+                    </tr>
+
+                </tbody>
+            </table>
+        </div>
+
+        <!-- footer -->
+        <div *ngIf="!loading && logs.length"
+            class="flex justify-between items-center px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/40">
+
+            <div class="flex items-center gap-2 text-xs text-slate-500">
+                Mostrar
+                <select [(ngModel)]="limit" (change)="onLimitChange()"
+                    class="px-2 py-1 text-xs bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-md">
+
+                    <option *ngFor="let size of pageSizeOptions" [ngValue]="size">
+                        {{ size }}
+                    </option>
+
+                </select>
+                registros
+            </div>
+
+            <div class="flex items-center gap-3 text-xs">
+
+                <button (click)="previousPage()" [disabled]="currentPage === 1"
+                    class="px-3 py-1 rounded-md bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700">
+                    Anterior
+                </button>
+
+                <span class="font-semibold">
+                    {{ currentPage }} / {{ totalPages }}
+                </span>
+
+                <button (click)="nextPage()" [disabled]="currentPage >= totalPages"
+                    class="px-3 py-1 rounded-md bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700">
+                    Siguiente
+                </button>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- sin registros -->
+    <div *ngIf="!loading && !logs.length" class="p-10 text-center text-slate-400 text-sm">
+        No hay registros de actividad.
+    </div>
+
+</div>
+
+
+<!-- ================= MODAL ================= -->
+<div *ngIf="logSeleccionado" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+
+    <div class="bg-white dark:bg-[#020617]
+              w-[650px] rounded-xl shadow-2xl overflow-hidden">
+
+        <div class="flex justify-between items-center px-6 py-4 border-b border-slate-200 dark:border-slate-800">
+
+            <div>
+                <h3 class="text-lg font-semibold text-slate-800 dark:text-white">
+                    Detalle del evento
+                </h3>
+                <p class="text-xs text-slate-400">
+                    {{ logSeleccionado.created_at | date:'medium' }}
+                </p>
+            </div>
+
+            <button (click)="cerrarDetalle()" class="text-slate-400 hover:text-red-500 text-lg">
+                ✕
+            </button>
+        </div>
+
+        <div class="p-6 space-y-4 text-sm">
+
+            <div>
+                <span class="text-slate-400">Usuario:</span>
+                <strong class="ml-2">{{ logSeleccionado.usuario_nombre || 'Sistema' }}</strong>
+            </div>
+
+            <div>
+                <span class="text-slate-400">Acción realizada:</span>
+                <strong class="ml-2">
+                    {{ traducirAccion(logSeleccionado.action) }}
+                </strong>
+            </div>
+
+            <!-- cambios -->
+            <div *ngIf="getCambios(logSeleccionado).length">
+
+                <div class="font-semibold text-slate-700 dark:text-white mb-2">
+                    Cambios realizados
+                </div>
+
+                <div class="border rounded-lg overflow-hidden">
+
+                    <table class="w-full text-xs">
+                        <thead class="bg-slate-100 dark:bg-slate-900">
+                            <tr>
+                                <th class="px-3 py-2 text-left">Campo</th>
+                                <th class="px-3 py-2 text-left">Antes</th>
+                                <th class="px-3 py-2 text-left">Después</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <tr *ngFor="let cambio of getCambios(logSeleccionado)">
+
+                                <td class="px-3 py-2 font-medium">
+                                    {{ traducirCampo(cambio.key) }}
+                                </td>
+
+                                <td class="px-3 py-2 text-red-600">
+                                    {{ formatearValor(cambio.antes) }}
+                                </td>
+
+                                <td class="px-3 py-2 text-emerald-600">
+                                    {{ formatearValor(cambio.despues) }}
+                                </td>
+
+                            </tr>
+                        </tbody>
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>

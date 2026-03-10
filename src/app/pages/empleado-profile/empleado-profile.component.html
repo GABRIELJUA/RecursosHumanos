@@ -1,0 +1,200 @@
+<!-- TOAST -->
+<div *ngIf="toast.show"
+     class="fixed top-5 left-1/2 -translate-x-1/2 z-50">
+  <div
+    class="px-4 py-3 rounded-lg text-white text-sm shadow-lg text-center"
+    [ngClass]="{
+      'bg-emerald-500': toast.type === 'success',
+      'bg-red-500': toast.type === 'error',
+      'bg-slate-800': toast.type === 'info'
+    }"
+  >
+    {{ toast.message }}
+  </div>
+</div>
+
+
+
+<div class="max-w-5xl mx-auto px-4 sm:px-6 space-y-6">
+
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+    <div>
+      <h2 class="text-lg sm:text-xl font-semibold text-slate-800">
+        Mi perfil
+      </h2>
+      <p class="text-xs text-slate-400">
+        Información personal registrada en el sistema
+      </p>
+    </div>
+
+    <!-- Acciones -->
+    <button *ngIf="!isEditing" (click)="isEditing = true" class="w-full sm:w-auto px-4 py-2 text-sm font-semibold
+             text-white bg-orange-500 hover:bg-orange-600 rounded-lg">
+      Editar
+    </button>
+
+    <div *ngIf="isEditing" class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+      <button (click)="cancelEdit()" class="w-full sm:w-auto px-4 py-2 text-sm font-semibold
+               text-slate-500 hover:text-slate-800">
+        Cancelar
+      </button>
+
+      <button (click)="saveProfile()" class="w-full sm:w-auto px-4 py-2 text-sm font-semibold
+               text-white bg-orange-500 hover:bg-orange-600 rounded-lg">
+        Guardar
+      </button>
+    </div>
+  </div>
+
+  <!-- Loader -->
+  <div *ngIf="loading" class="text-slate-400 text-center py-10">
+    Cargando información...
+  </div>
+
+  <!-- Contenido -->
+  <div *ngIf="!loading" class="bg-white border border-slate-200 rounded-2xl
+              p-4 sm:p-8 space-y-8">
+
+    <!-- INFORMACIÓN LABORAL -->
+    <section>
+      <h3 class="text-xs font-semibold text-slate-600 uppercase tracking-wider mb-4">
+        Información laboral
+      </h3>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+        <div class="bg-slate-50 rounded-lg p-3">
+          <span class="text-slate-400">Nómina</span><br>
+          <strong>{{ employee?.num_nomina }}</strong>
+        </div>
+
+        <div class="bg-slate-50 rounded-lg p-3">
+          <span class="text-slate-400">Rol</span><br>
+          <strong>{{ employee?.rol }}</strong>
+        </div>
+
+        <div class="bg-slate-50 rounded-lg p-3">
+          <span class="text-slate-400">Fecha de ingreso</span><br>
+          <strong>{{ employee?.fecha_ingreso | date:'yyyy-MM-dd' }}</strong>
+        </div>
+
+        <div class="bg-slate-50 rounded-lg p-3">
+          <span class="text-slate-400">Departamento</span><br>
+          <strong>{{ employee?.departamento }}</strong>
+        </div>
+
+        <div class="bg-slate-50 rounded-lg p-3">
+          <span class="text-slate-400">Puesto</span><br>
+          <strong>{{ employee?.puesto }}</strong>
+        </div>
+      </div>
+    </section>
+
+    <!-- DATOS PERSONALES -->
+    <section class="pt-6 border-t border-slate-100">
+      <h3 class="text-xs font-semibold text-slate-600 uppercase tracking-wider mb-4">
+        Datos personales
+      </h3>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+        <div class="bg-slate-50 rounded-lg p-3">
+          <span class="text-slate-400">Nombre completo</span><br>
+          <strong>
+            {{ employee?.nombre }} {{ employee?.apellido_paterno }} {{ employee?.apellido_materno }}
+          </strong>
+        </div>
+
+        <div class="bg-slate-50 rounded-lg p-3">
+          <span class="text-slate-400">Fecha de nacimiento</span><br>
+          <strong>{{ employee?.fecha_nacimiento | date:'yyyy-MM-dd' }}</strong>
+        </div>
+
+        <div class="bg-slate-50 rounded-lg p-3">
+          <span class="text-slate-400">Edad</span><br>
+          <strong>{{ employee?.edad }} años</strong>
+        </div>
+
+        <div class="bg-slate-50 rounded-lg p-3">
+          <span class="text-slate-400">Sexo</span><br>
+          <strong>{{ employee?.sexo }}</strong>
+        </div>
+
+        <div class="bg-slate-50 rounded-lg p-3">
+          <span class="text-slate-400">Estado civil</span><br>
+
+          <select *ngIf="isEditing" [(ngModel)]="employee.estado_civil"
+            class="form-input-hotel mt-1 bg-orange-50 border-orange-300 focus:ring-orange-200">
+            <option value="Soltero/a">Soltero/a</option>
+            <option value="Casado/a">Casado/a</option>
+            <option value="Divorciado/a">Divorciado/a</option>
+            <option value="Viudo/a">Viudo/a</option>
+            <option value="Unión Libre">Unión Libre</option>
+          </select>
+
+          <strong *ngIf="!isEditing">{{ employee?.estado_civil }}</strong>
+        </div>
+
+        <div class="bg-slate-50 rounded-lg p-3">
+          <span class="text-slate-400">Nacionalidad</span><br>
+          <strong>{{ employee?.nacionalidad }}</strong>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACTO -->
+    <section class="pt-6 border-t border-slate-100">
+      <h3 class="text-xs font-semibold text-slate-600 uppercase tracking-wider mb-4">
+        Información de contacto
+      </h3>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+
+        <div class="bg-slate-50 rounded-lg p-3">
+          <span class="text-slate-400">Correo</span><br>
+          <input *ngIf="isEditing" type="email" [(ngModel)]="employee.correo"
+            class="form-input-hotel mt-1 bg-orange-50 border-orange-300 focus:ring-orange-200" />
+          <strong *ngIf="!isEditing">{{ employee?.correo }}</strong>
+        </div>
+
+        <div class="bg-slate-50 rounded-lg p-3">
+          <span class="text-slate-400">Teléfono</span><br>
+          <input *ngIf="isEditing" [(ngModel)]="employee.telefono"
+            class="form-input-hotel mt-1 bg-orange-50 border-orange-300 focus:ring-orange-200" />
+          <strong *ngIf="!isEditing">{{ employee?.telefono }}</strong>
+        </div>
+
+        <div class="bg-slate-50 rounded-lg p-3 sm:col-span-2 lg:col-span-3">
+          <span class="text-slate-400">Domicilio</span><br>
+          <textarea *ngIf="isEditing" rows="3" [(ngModel)]="employee.domicilio"
+            class="form-input-hotel mt-1 bg-orange-50 border-orange-300 focus:ring-orange-200"></textarea>
+          <strong *ngIf="!isEditing">{{ employee?.domicilio }}</strong>
+        </div>
+      </div>
+    </section>
+
+    <!-- DOCUMENTOS -->
+    <section class="pt-6 border-t border-slate-100">
+      <h3 class="text-xs font-semibold text-slate-600 uppercase tracking-wider mb-4">
+        Documentos oficiales
+      </h3>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+        <div class="bg-slate-50 rounded-lg p-3">
+          <span class="text-slate-400">RFC</span><br>
+          <strong>{{ employee?.rfc }}</strong>
+        </div>
+
+        <div class="bg-slate-50 rounded-lg p-3">
+          <span class="text-slate-400">CURP</span><br>
+          <strong>{{ employee?.curp }}</strong>
+        </div>
+
+        <div class="bg-slate-50 rounded-lg p-3">
+          <span class="text-slate-400">NSS</span><br>
+          <strong>{{ employee?.nss }}</strong>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</div>

@@ -1,0 +1,47 @@
+/* CONTENEDOR GENERAL */
+.mobile-menu{
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+}
+
+/* OVERLAY OSCURO */
+.mobile-overlay{
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.35);
+  backdrop-filter: blur(6px);
+
+  opacity: 0;
+  transition: opacity .35s ease;
+}
+
+/* DRAWER */
+.mobile-drawer{
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: 18rem;
+
+  transform: translate3d(100%,0,0);
+
+  transition:
+    transform .45s cubic-bezier(.22,1,.36,1);
+
+  will-change: transform;
+}
+
+/* ESTADO ABIERTO */
+.mobile-menu.open{
+  pointer-events: auto;
+}
+
+.mobile-menu.open .mobile-overlay{
+  opacity: 1;
+}
+
+.mobile-menu.open .mobile-drawer{
+  transform: translate3d(0,0,0);
+}

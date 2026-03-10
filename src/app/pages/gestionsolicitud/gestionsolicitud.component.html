@@ -1,0 +1,152 @@
+<div class="space-y-6">
+
+  <!-- ================= HEADER + ACCIONES ================= -->
+  <div class="flex items-center justify-between flex-wrap gap-4">
+
+    <!-- Título -->
+    <div>
+      <h2 class="text-xl font-semibold text-slate-800 dark:text-white">
+        Solicitudes de Vacaciones
+      </h2>
+      <p class="text-xs text-slate-400 mt-1">
+        Solicitudes enviadas por los empleados
+      </p>
+    </div>
+
+    <!-- Acciones -->
+    <div class="flex items-center gap-2">
+      <!-- Exportar Excel -->
+      <button (click)="exportarExcel()" [disabled]="!solicitudesFiltradas.length"
+        title="Exportar solicitudes visibles a Excel" class="inline-flex items-center gap-2 px-3 py-2 text-xs font-semibold
+               border border-slate-200 dark:border-slate-700
+               bg-white dark:bg-slate-900
+               rounded-md
+               hover:bg-slate-100 dark:hover:bg-slate-800
+               transition
+               disabled:opacity-40 disabled:cursor-not-allowed">
+
+        <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3M4 4h16v4H4z" />
+        </svg>
+
+        Exportar
+      </button>
+    </div>
+  </div>
+  <!-- 🔎 FILTROS -->
+  <div class="bg-white dark:bg-[#020617]
+            border border-slate-200 dark:border-slate-800
+            rounded-xl p-4">
+
+    <div class="flex flex-col md:flex-row gap-4">
+
+      <!-- Buscador por Nómina -->
+      <div class="relative flex-1">
+
+        <input type="text" [(ngModel)]="searchNomina" (input)="aplicarFiltros()"
+          placeholder="Buscar por número de nómina..." class="w-full pl-10 pr-4 py-2 text-sm
+               bg-slate-50 dark:bg-slate-900
+               border border-slate-200 dark:border-slate-700
+               rounded-lg
+               focus:outline-none focus:ring-2 focus:ring-orange-500/20
+               text-slate-700 dark:text-slate-200
+               placeholder-slate-400 transition" />
+
+        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" stroke="currentColor"
+          stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z" />
+        </svg>
+
+      </div>
+
+      <!-- Selector Hoy / Todas -->
+      <div class="w-full md:w-64">
+
+        <select [(ngModel)]="filtro" (change)="aplicarFiltros()" class="w-full px-3 py-2 text-sm
+               bg-slate-50 dark:bg-slate-900
+               border border-slate-200 dark:border-slate-700
+               rounded-lg
+               focus:outline-none focus:ring-2 focus:ring-orange-500/20
+               text-slate-700 dark:text-slate-200
+               transition">
+
+          <option value="todas">Todas las solicitudes</option>
+          <option value="hoy">Hoy</option>
+
+        </select>
+
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ================= TABLA ================= -->
+  <div class="bg-white dark:bg-[#020617] border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden">
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="p-10 text-center text-slate-400 text-sm">
+      Cargando solicitudes…
+    </div>
+
+    <!-- Tabla -->
+    <div *ngIf="!loading && solicitudesFiltradas.length" class="overflow-x-auto">
+
+      <table class="min-w-full text-sm">
+
+        <thead class="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+          <tr class="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+            <th class="px-6 py-3 text-left">No.Nomina</th>
+            <th class="px-6 py-3 text-left">Empleado</th>
+            <th class="px-6 py-3 text-left">Inicio</th>
+            <th class="px-6 py-3 text-left">Fin</th>
+            <th class="px-6 py-3 text-left">Días</th>
+            <th class="px-6 py-3 text-left">Motivo</th>
+            <th class="px-6 py-3 text-left">Solicitado</th>
+          </tr>
+        </thead>
+
+        <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+
+          <tr *ngFor="let s of solicitudesFiltradas" class="hover:bg-slate-50 dark:hover:bg-slate-900 transition">
+
+            <td class="px-6 py-4 font-medium text-slate-800 dark:text-white">
+              {{ s.num_nomina }}
+            </td>
+
+
+            <td class="px-6 py-4 font-medium text-slate-800 dark:text-white">
+              {{ s.empleado }}
+            </td>
+
+            <td class="px-6 py-4 text-slate-700 dark:text-slate-300">
+              {{ s.fecha_inicio | date:'dd/MM/yyyy' }}
+            </td>
+
+            <td class="px-6 py-4 text-slate-700 dark:text-slate-300">
+              {{ s.fecha_fin | date:'dd/MM/yyyy' }}
+            </td>
+            <td class="px-6 py-4 text-slate-700 dark:text-slate-300">
+              {{ calcularDias(s.fecha_inicio, s.fecha_fin) }}
+            </td>
+            <td class="px-6 py-4 text-slate-600 dark:text-slate-400">
+              {{ s.motivo || 'Sin motivo' }}
+            </td>
+
+            <td class="px-6 py-4 font-mono text-xs text-slate-500 dark:text-slate-400">
+              {{ s.creado_en | date:'dd/MM/yyyy HH:mm' }}
+            </td>
+
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Empty state -->
+  <div *ngIf="!loading && !solicitudesFiltradas.length" class="p-10 text-center text-slate-400 text-sm">
+    No hay solicitudes registradas.
+  </div>
+
+</div>

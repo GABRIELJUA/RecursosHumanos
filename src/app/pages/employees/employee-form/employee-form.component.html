@@ -1,0 +1,214 @@
+<div *ngIf="toast.show" class="fixed top-6 left-1/2 -translate-x-1/2 z-[999] min-w-[260px] max-w-sm">
+
+  <div class="text-white px-4 py-3 rounded-lg shadow-lg text-sm flex items-center gap-2" [ngClass]="{
+        'bg-emerald-500': toast.type === 'success',
+        'bg-red-500': toast.type === 'error',
+        'bg-slate-800': toast.type === 'info'
+       }">
+
+    <span *ngIf="toast.type==='success'"></span>
+    <span *ngIf="toast.type==='error'"></span>
+    <span *ngIf="toast.type==='info'"></span>
+
+    {{ toast.message }}
+  </div>
+</div>
+
+<!-- Contenedor centrado con BORDE SUAVE -->
+<div class="max-w-5xl mx-auto px-6 py-8 border border-slate-200 dark:border-slate-800 rounded-xl
+            bg-white dark:bg-[#020617] transition-colors">
+
+  <!-- ================= HEADER PASOS ================= -->
+  <div class="flex items-center gap-4 mb-6 text-xs font-semibold">
+
+    <!-- Paso 1 -->
+    <div class="flex items-center gap-2">
+      <span class="w-6 h-6 flex items-center justify-center rounded-full" [ngClass]="step === 1
+          ? 'bg-blue-600 text-white'
+          : 'bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-300'">
+        1
+      </span>
+      <span [ngClass]="step === 1 ? 'text-blue-700 dark:text-orange-400' : 'text-slate-600 dark:text-slate-400'">
+        Datos generales
+      </span>
+    </div>
+
+    <div class="flex-1 h-px bg-slate-200 dark:bg-slate-800"></div>
+
+    <!-- Paso 2 -->
+    <div class="flex items-center gap-2">
+      <span class="w-6 h-6 flex items-center justify-center rounded-full" [ngClass]="step === 2
+          ? 'bg-blue-600 text-white'
+          : 'bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-300'">
+        2
+      </span>
+      <span [ngClass]="step === 2 ? 'text-blue-700 dark:text-orange-400' : 'text-slate-600 dark:text-slate-400'">
+        Información complementaria
+      </span>
+    </div>
+  </div>
+
+  <!-- ================= FORM ================= -->
+  <form #empForm="ngForm" (ngSubmit)="onSave()" class="space-y-8">
+
+    <!-- ================= PASO 1 ================= -->
+    <div *ngIf="step === 1" class="space-y-8">
+
+      <!-- CONTRATO -->
+      <section class="space-y-4">
+        <h3 class="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
+          Información de contrato
+        </h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <input [(ngModel)]="employee.num_nomina" name="num_nomina" required maxlength="4" inputmode="numeric"
+            (keydown)="soloNumeros($event)" class="form-input-hotel" placeholder="No. Nómina (4 dígitos)">
+
+
+          <select [(ngModel)]="employee.rol" name="rol" class="form-input-hotel" [disabled]="!canChangeRole">
+            <option value="EMPLEADO">Empleado</option>
+            <option value="ADMIN_LECTURA">Admin lectura</option>
+            <option value="ADMIN_EDITOR">Admin editor</option>
+            <option value="ADMIN">Administrador</option>
+          </select>
+
+          <input type="date" [(ngModel)]="employee.fecha_ingreso" name="fecha_ingreso" required
+            class="form-input-hotel">
+        </div>
+
+        <select [(ngModel)]="employee.departamento" name="departamento" required class="form-input-hotel"
+          (change)="onDepartamentoChange()">
+
+          <option value="" disabled>Seleccionar departamento</option>
+
+          <option *ngFor="let d of departamentos" [value]="d.id">
+            {{ d.nombre }}
+          </option>
+
+        </select>
+
+
+        <select [(ngModel)]="employee.puesto" name="puesto" required class="form-input-hotel"
+          [disabled]="!puestos.length">
+
+          <option value="" disabled>Seleccionar puesto</option>
+
+          <option *ngFor="let p of puestos" [value]="p.id">
+            {{ p.nombre }}
+          </option>
+
+        </select>
+      </section>
+
+      <!-- DATOS PERSONALES -->
+      <section class="space-y-4 pt-6 border-t border-slate-100 dark:border-slate-800">
+        <h3 class="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
+          Datos personales
+        </h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <input [(ngModel)]="employee.nombre" name="nombre" required class="form-input-hotel" placeholder="Nombre(s)">
+          <input [(ngModel)]="employee.apellido_paterno" name="apellido_paterno" required class="form-input-hotel"
+            placeholder="Apellido paterno">
+          <input [(ngModel)]="employee.apellido_materno" name="apellido_materno" class="form-input-hotel"
+            placeholder="Apellido materno">
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <input type="email" [(ngModel)]="employee.correo" name="correo" required
+            class="form-input-hotel md:col-span-2" placeholder="Correo electrónico">
+          <input type="date" [(ngModel)]="employee.fecha_nacimiento" name="fecha_nacimiento" required
+            class="form-input-hotel">
+          <select [(ngModel)]="employee.sexo" name="sexo" class="form-input-hotel">
+            <option value="Masculino">Masculino</option>
+            <option value="Femenino">Femenino</option>
+            <option value="Otro">Otro</option>
+          </select>
+        </div>
+
+        <select [(ngModel)]="employee.estado_civil" name="estado_civil" class="form-input-hotel w-full md:w-1/3">
+          <option value="Soltero/a">Soltero/a</option>
+          <option value="Casado/a">Casado/a</option>
+          <option value="Divorciado/a">Divorciado/a</option>
+        </select>
+      </section>
+
+      <!-- Acciones paso 1 -->
+      <div class="flex justify-between pt-6">
+        <button type="button" routerLink="/admin/employees"
+          class="px-4 py-2 text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white">
+          Cancelar
+        </button>
+
+        <button type="button" (click)="nextStep()" [disabled]="empForm.invalid" class="px-6 py-2 text-xs font-semibold text-white
+                 bg-orange-500 hover:bg-orange-600 rounded-md
+                 disabled:bg-slate-200 disabled:text-slate-400">
+          Continuar
+        </button>
+      </div>
+    </div>
+
+    <!-- ================= PASO 2 ================= -->
+    <div *ngIf="step === 2" class="space-y-8">
+
+      <!-- CONTACTO -->
+      <section class="space-y-4">
+        <h3 class="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
+          Información de contacto
+        </h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <input [(ngModel)]="employee.telefono" name="telefono" class="form-input-hotel" required maxlength="10"
+            inputmode="numeric" (keydown)="soloNumeros($event)" class="form-input-hotel" placeholder="Teléfono">
+          <input [(ngModel)]="employee.nacionalidad" name="nacionalidad" class="form-input-hotel"
+            placeholder="Nacionalidad">
+          <input [(ngModel)]="employee.domicilio" name="domicilio" class="form-input-hotel md:col-span-3"
+            placeholder="Domicilio">
+        </div>
+      </section>
+
+      <!-- DOCUMENTOS -->
+      <section
+        class="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-6 space-y-4">
+        <h3 class="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
+          Documentos oficiales
+        </h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <input [(ngModel)]="employee.rfc" name="rfc" required
+            class="form-input-hotel uppercase bg-white dark:bg-slate-950" placeholder="RFC">
+
+          <input [(ngModel)]="employee.curp" name="curp" required
+            class="form-input-hotel uppercase bg-white dark:bg-slate-950" placeholder="CURP">
+
+          <input [(ngModel)]="employee.nss" name="nss" required class="form-input-hotel bg-white dark:bg-slate-950"
+            placeholder="NSS">
+        </div>
+      </section>
+
+      <!-- ACCESO -->
+      <div *ngIf="!isEditing">
+        <label class="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1">
+          Contraseña *
+        </label>
+        <input type="password" [(ngModel)]="employee.password" name="password" required
+          class="form-input-hotel w-full md:w-1/2">
+      </div>
+
+      <!-- Acciones paso 2 -->
+      <div class="flex justify-between pt-6 border-t border-slate-200 dark:border-slate-800">
+        <button type="button" (click)="prevStep()"
+          class="px-4 py-2 text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white">
+          Volver
+        </button>
+
+        <button type="submit" [disabled]="empForm.invalid" class="px-6 py-2 text-xs font-semibold text-white
+         bg-orange-500 hover:bg-orange-600 rounded-md
+         disabled:bg-slate-200 disabled:text-slate-400">
+          {{ isEditing ? 'Actualizar empleado' : 'Registrar empleado' }}
+        </button>
+      </div>
+    </div>
+
+  </form>
+</div>

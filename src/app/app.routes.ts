@@ -32,6 +32,7 @@ import { GaleriaAdminComponent } from './pages/galeria-admin/galeria-admin.compo
 import { BannerAdminComponent } from './pages/banner-admin/banner-admin.component';
 import { RecursosAdminComponent } from './pages/recursos-admin/recursos-admin.component';
 import { DepartamentosPuestosComponent } from './pages/departamentos-puestos/departamentos-puestos.component';
+import { ContractFormComponent } from './pages/employees/contract-form/contract-form.component';
 
 // Empleado
 import { EmpleadoProfileComponent } from './pages/empleado-profile/empleado-profile.component';
@@ -85,7 +86,8 @@ export const routes: Routes = [
       { path: 'galeria', component: GaleriaAdminComponent, data: { breadcrumb: 'Galería' } },
       { path: 'banner', component: BannerAdminComponent, data: { breadcrumb: 'Banner' } },
       { path: 'recursos', component: RecursosAdminComponent, data: { breadcrumb: 'Recursos' } },
-      { path: 'departamentos', component: DepartamentosPuestosComponent, data: { breadcrumb: 'Departamentos y Puestos' } }
+      { path: 'departamentos', component: DepartamentosPuestosComponent, data: { breadcrumb: 'Departamentos y Puestos' } },
+      { path: 'contratos/:id', component: ContractFormComponent, data: { breadcrumb: 'Contratos' } }
     ]
   },
 

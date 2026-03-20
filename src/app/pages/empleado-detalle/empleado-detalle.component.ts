@@ -1,5 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { ContractsService } from '../../services/contracts.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { EmployeeService } from '../../services/employee.service';
@@ -18,10 +19,13 @@ export class EmpleadoDetalleComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private employeeService = inject(EmployeeService);
+  private contractsService = inject(ContractsService);
 
   employee!: Employee;
   loading = true;
   errorMessage: string | null = null;
+
+  contracts: any[] = [];
 
   toast = {
     show: false,
@@ -36,20 +40,36 @@ export class EmpleadoDetalleComponent implements OnInit {
   };
 
   ngOnInit(): void {
+
     const id = Number(this.route.snapshot.paramMap.get('id'));
 
     this.employeeService.getEmployeeById(id).subscribe({
+
       next: (data) => {
+
         this.employee = data;
+
+        this.contractsService.getContractsByEmployee(id).subscribe({
+          next: (contracts) => {
+            this.contracts = contracts;
+          },
+          error: () => {
+            console.error('Error cargando contratos');
+          }
+        });
+
         this.loading = false;
-        console.log('Empleado cargado:', this.employee);
+
       },
+
       error: () => {
         this.loading = false;
         this.errorMessage = 'No se pudo cargar el empleado';
         this.router.navigate(['/admin/employees']);
       }
+
     });
+
   }
 
   openResetPassword() {
@@ -110,5 +130,7 @@ export class EmpleadoDetalleComponent implements OnInit {
       this.toast.show = false;
     }, 3000);
   }
-
+  hasContratoIndeterminado(): boolean {
+    return this.contracts?.some(c => c.tipo_contrato === 'INDETERMINADO');
+  }
 }

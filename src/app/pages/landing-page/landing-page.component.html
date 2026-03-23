@@ -83,21 +83,22 @@
 
   <section *ngFor="let s of secciones; let i = index">
 
-    <div class="max-w-6xl mx-auto grid md:grid-cols-3 gap-10 lg:gap-16 items-center">
+    <div class="max-w-6xl mx-auto grid gap-10 lg:gap-16 items-center"
+      [ngClass]="s.imagen_url ? 'md:grid-cols-3' : 'md:grid-cols-1 text-center'">
 
       <!-- IMAGEN IZQUIERDA -->
-      <div *ngIf="i % 2 === 0"
+      <div *ngIf="s.imagen_url && i % 2 === 0"
         class="group relative rounded-xl overflow-hidden shadow-sm border border-slate-200 bg-slate-100">
 
         <img [src]="'http://localhost:3000' + s.imagen_url" class="w-full h-[260px] md:h-[300px] object-cover
-                 transition duration-500 ease-out
-                 group-hover:scale-[1.04]">
+                    transition duration-500 ease-out
+                    group-hover:scale-[1.04]">
 
       </div>
 
 
       <!-- ARCHIVOS -->
-      <div class="space-y-6">
+      <div class="space-y-6" [ngClass]="!s.imagen_url ? 'mx-auto max-w-xl text-center' : ''">
 
         <div>
           <h3 class="text-xl md:text-2xl font-semibold text-slate-800 tracking-tight">
@@ -109,21 +110,20 @@
           </p>
         </div>
 
-
         <!-- LISTADO -->
         <div class="space-y-3">
 
           <a *ngFor="let a of s.archivos" [href]="'http://localhost:3000' + a.archivo_url" target="_blank" class="flex items-center justify-between
-                   px-4 py-3
-                   bg-white
-                   border border-slate-200
-                   rounded-lg
-                   text-sm text-slate-600
-                   shadow-sm
-                   hover:shadow-md
-                   hover:border-slate-300
-                   hover:bg-slate-50
-                   transition">
+                    px-4 py-3
+                    bg-white
+                    border border-slate-200
+                    rounded-lg
+                    text-sm text-slate-600
+                    shadow-sm
+                    hover:shadow-md
+                    hover:border-slate-300
+                    hover:bg-slate-50
+                    transition">
 
             <span class="flex items-center gap-3 truncate">
 
@@ -135,7 +135,6 @@
                   d="M7 7V5a2 2 0 012-2h6l4 4v12a2 2 0 01-2 2H9a2 2 0 01-2-2V7z" />
 
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 3v4h4" />
-
               </svg>
 
               <span class="truncate font-medium">
@@ -144,18 +143,14 @@
 
             </span>
 
-
             <span class="flex items-center gap-1 text-xs text-slate-400">
-
               Descargar
 
               <!-- ICONO DESCARGA -->
               <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
 
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v12m0 0l4-4m-4 4l-4-4m-5 9h18" />
-
               </svg>
-
             </span>
 
           </a>
@@ -166,7 +161,8 @@
 
 
       <!-- INFO DERECHA -->
-      <div *ngIf="i % 2 === 0" class="text-sm md:text-base text-slate-500 leading-relaxed">
+      <div *ngIf="i % 2 === 0" class="text-sm md:text-base text-slate-500 leading-relaxed"
+        [ngClass]="!s.imagen_url ? 'mx-auto max-w-xl text-center' : ''">
 
         {{ s.descripcion }}
 
@@ -174,7 +170,8 @@
 
 
       <!-- INFO IZQUIERDA -->
-      <div *ngIf="i % 2 !== 0" class="text-sm md:text-base text-slate-500 leading-relaxed">
+      <div *ngIf="i % 2 !== 0" class="text-sm md:text-base text-slate-500 leading-relaxed"
+        [ngClass]="!s.imagen_url ? 'mx-auto max-w-xl text-center' : ''">
 
         {{ s.descripcion }}
 
@@ -182,12 +179,12 @@
 
 
       <!-- IMAGEN DERECHA -->
-      <div *ngIf="i % 2 !== 0"
+      <div *ngIf="s.imagen_url && i % 2 !== 0"
         class="group relative rounded-xl overflow-hidden shadow-sm border border-slate-200 bg-slate-100">
 
         <img [src]="'http://localhost:3000' + s.imagen_url" class="w-full h-[260px] md:h-[300px] object-cover
-                 transition duration-500 ease-out
-                 group-hover:scale-[1.04]">
+                    transition duration-500 ease-out
+                    group-hover:scale-[1.04]">
 
       </div>
 
